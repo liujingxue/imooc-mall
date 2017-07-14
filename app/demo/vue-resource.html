@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="../node_modules/vue/dist/vue.js"></script>
+    <script src="../node_modules/vue-resource/dist/vue-resource.js"></script>
+</head>
+<body>
+  <div id="app" class="container">
+    <h1>vue-resource插件讲解</h1>
+    <a href="javascript:;" class="btn btn-primary" v-on:click="get">Get请求</a>
+    <a href="javascript:;" class="btn btn-primary" @click="post">Post请求</a>
+    <a href="javascript:;" class="btn btn-primary" @click="jsonp">JSONP请求</a>
+    <a href="javascript:;" class="btn btn-primary" @click="http">http请求</a>
+    <div>
+      <span>{{msg}}</span>
+    </div>
+  </div>
+  <script>
+    new Vue({
+      el: "#app",        //监听的对象
+      data:{
+        msg: ''
+      },
+      mounted: function(){
+          //定义一个全局拦截器
+          Vue.http.interceptors.push(function(request,next){
+              //请求之前
+              console.log("request init.");
+              //请求完之后
+              next(function(response){
+                  console.log("请求完了");
+                  return response;
+              });
+          });
+      },
+      //配置全局路径
+      http:{
+          root: "http://localhost:63342/imooc-mall/app/"
+      },
+      methods:{
+          get: function(){
+            //使用vue-resource插件，发送一个Get请求 。vue-resource已经挂载到了vue实例上。直接使用this
+            this.$http.get("package.json",{
+                //传参
+                params: {
+                    userId: '101'
+                },
+                headers: {
+                    token: "abcd"
+                }
+            }).then(res=>{                            //then()里面接收2个回调
+               this.msg = res.data;
+            },error=>{
+                this.msg = error;
+            });
+          },
+          //post请求
+          post: function(){
+              this.$http.post("package.json",{
+                  userId: "102"
+              },{
+                  headers:{
+                      access_token: "abc"
+                  }
+              }).then(function(res){
+                  this.msg = res.data;
+              });
+          },
+          //jsonp请求,是一个跨域的请求
+          jsonp: function(){
+              var url = "http://www.imooc.com/course/AjaxCourseMembers?ids=796";
+              this.$http.jsonp(url).then(function(res){
+                  this.msg = res.data;
+              });
+          },
+          http: function(){
+              this.$http({
+                url:"package.json",
+                method:"GET",
+                params:{
+                    userId:"103"
+                },
+                headers:{
+                    token: "123"
+                },
+                timeout:50,
+                //before就是请求之前执行的函数
+                before:function(){
+                  console.log("before init");
+                }
+              }).then(function(res){
+                this.msg = res.data;
+              });
+          }
+      }
+    });
+  </script>
+</body>
+</html>

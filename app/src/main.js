@@ -7,9 +7,18 @@ import router from './router'
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
-new Vue({
+new Vue({                                    //整个页面的入口
   el: '#app',
   router,
   template: '<App/>',
   components: { App }
 })
+
+
+// //另一种方式,通过$mount挂载
+// new Vue({
+//   //el: '#app',
+//   router,
+//   template: '<APP/>',
+//   components: { App }
+// }).$mount("#app");
