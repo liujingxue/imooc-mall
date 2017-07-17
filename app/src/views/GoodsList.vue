@@ -1,37 +1,11 @@
 <template>
   <div>
-    <header class="header">
-      <div class="navbar">
-        <div class="navbar-left-container">
-          <a href="/">
-            <img class="navbar-brand-logo" src="static/logo.png"></a>
-        </div>
-        <div class="navbar-right-container" style="display: flex;">
-          <div class="navbar-menu-container">
-            <!--<a href="/" class="navbar-link">我的账户</a>-->
-            <span class="navbar-link"></span>
-            <a href="javascript:void(0)" class="navbar-link">Login</a>
-            <a href="javascript:void(0)" class="navbar-link">Logout</a>
-            <div class="navbar-cart-container">
-              <span class="navbar-cart-count"></span>
-              <a class="navbar-link navbar-cart-link" href="/#/cart">
-                <svg class="navbar-cart-logo">
-                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-cart"></use>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-    <div class="nav-breadcrumb-wrap">
-      <div class="container">
-        <nav class="nav-breadcrumb">
-          <a href="/">Home</a>
-          <span>Goods</span>
-        </nav>
-      </div>
-    </div>
+    <!-- 引入头部 -->
+    <nav-header></nav-header>
+    <nav-bread>
+      <span slot="bread">Goods</span>
+      <span slot="cateName">Iphone</span>
+    </nav-bread>
     <div class="accessory-result-page accessory-page">
       <div class="container">
         <div class="filter-nav">
@@ -45,18 +19,9 @@
           <div class="filter stopPop" id="filter">
             <dl class="filter-price">
               <dt>Price:</dt>
-              <dd><a href="javascript:void(0)">All</a></dd>
-              <dd>
-                <a href="javascript:void(0)">0 - 100</a>
-              </dd>
-              <dd>
-                <a href="javascript:void(0)">100 - 500</a>
-              </dd>
-              <dd>
-                <a href="javascript:void(0)">500 - 1000</a>
-              </dd>
-              <dd>
-                <a href="javascript:void(0)">1000 - 2000</a>
+              <dd><a href="javascript:void(0)" v-bind:class="{'cur':priceChecked=='all'}">All</a></dd>
+              <dd v-for="price in priceFilter" @click="setPriceFilter">
+                <a href="javascript:void(0)" v-bind:class="{'cur':true}">{{price.startPrice}} - {{price.endPrice}}</a>
               </dd>
             </dl>
           </div>
@@ -65,98 +30,74 @@
           <div class="accessory-list-wrap">
             <div class="accessory-list col-4">
               <ul>
-                <li>
+                <li v-for="(item,index) in goodsList">
                   <div class="pic">
-                    <a href="#"><img src="static/1.jpg" alt=""></a>
+                    <a href="#"><img v-bind:src="'/static/'+item.productImg" alt=""></a>
                   </div>
                   <div class="main">
-                    <div class="name">XX</div>
-                    <div class="price">999</div>
+                    <div class="name">{{item.productName}}</div>
+                    <div class="price">{{item.productPrice}}</div>
                     <div class="btn-area">
                       <a href="javascript:;" class="btn btn--m">加入购物车</a>
                     </div>
                   </div>
                 </li>
-                <li>
-                  <div class="pic">
-                    <a href="#"><img src="static/2.jpg" alt=""></a>
-                  </div>
-                  <div class="main">
-                    <div class="name">XX</div>
-                    <div class="price">1000</div>
-                    <div class="btn-area">
-                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="pic">
-                    <a href="#"><img src="static/3.jpg" alt=""></a>
-                  </div>
-                  <div class="main">
-                    <div class="name">XX</div>
-                    <div class="price">500</div>
-                    <div class="btn-area">
-                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="pic">
-                    <a href="#"><img src="static/4.jpg" alt=""></a>
-                  </div>
-                  <div class="main">
-                    <div class="name">XX</div>
-                    <div class="price">2499</div>
-                    <div class="btn-area">
-                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
-                    </div>
-                  </div>
-                </li>
+
               </ul>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <footer class="footer">
-      <div class="footer__wrap">
-        <div class="footer__secondary">
-          <div class="footer__inner">
-            <div class="footer__region">
-              <span>Region</span>
-              <select class="footer__region__select">
-                <option value="en-US">USA</option>
-                <option value="zh-CN">China</option>
-                <option value="in">India</option>
-              </select>
-            </div>
-            <div class="footer__secondary__nav">
-              <span>Copyright © 2017 IMooc All Rights Reserved.</span>
-              <a href="http://us.lemall.com/us/aboutUs.html">
-                About Us
-              </a>
-              <a href="http://us.lemall.com/us/termsofUse.html">
-                Terms &amp; Conditions
-              </a>
-              <a href="http://us.lemall.com/us/privacyPolicy.html">
-                Privacy Policy
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <nav-footer></nav-footer>
   </div>
 </template>
 <script>
   import './../assets/css/base.css'
   import './../assets/css/product.css'
+  import NavHeader from '@/components/NavHeader.vue'
+  import NavFooter from '@/components/NavFooter.vue'
+  import NavBread from '@/components/NavBread.vue'
+  import axios from 'axios'     //默认从node_modules去查找
   export default{
-    data(){
+    data () {
       return {
-
+        goodsList: [],
+        priceFilter: [
+          {
+              startPrice:'0.00',
+              endPrice: '500.00',
+          },
+          {
+              startPrice: '500.00',
+              endPrice: '1000.00'
+          },
+          {
+              startPrice: '1000.00',
+              endPrice: '2000.00'
+          }
+        ],
+        priceChecked: 'all'
       }
+    },
+    components:{
+        NavHeader,
+        NavFooter,
+        NavBread
+    },
+    //页面初始化的时候
+    mounted:function(){
+        this.getGoodsList();
+    },
+    methods:{
+        getGoodsList(){
+            //axios已经封装了Promise
+            axios.get("/goods").then((result)=>{
+                var res = result.data;
+                this.goodsList = res.result;
+            })
+
+        }
     }
   }
 </script>

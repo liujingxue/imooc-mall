@@ -43,3 +43,13 @@ checkLogin().then((res) => {
 Promise.all([checkLogin(),getUserInfo()]).then(([res1,res2])=>{
   console.log(`result1:${res1.result},result2:${res2.userId}`)
 })
+
+
+
+//ES6 定义方法
+let getUserName = (userName) =>{
+  console.log("userName:" + userName);
+}
+getUserName("nick");
+
+
