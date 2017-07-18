@@ -12,16 +12,16 @@
           <span class="sortby">Sort by:</span>
           <a href="javascript:void(0)" class="default cur">Default</a>
           <a href="javascript:void(0)" class="price">Price <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
-          <a href="javascript:void(0)" class="filterby stopPop">Filter by</a>
+          <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter by</a>
         </div>
         <div class="accessory-result">
           <!-- filter -->
-          <div class="filter stopPop" id="filter">
+          <div class="filter stopPop" id="filter" v-bind:class="{'filterby-show':filterBy}">
             <dl class="filter-price">
               <dt>Price:</dt>
-              <dd><a href="javascript:void(0)" v-bind:class="{'cur':priceChecked=='all'}">All</a></dd>
-              <dd v-for="price in priceFilter" @click="setPriceFilter">
-                <a href="javascript:void(0)" v-bind:class="{'cur':true}">{{price.startPrice}} - {{price.endPrice}}</a>
+              <dd><a href="javascript:void(0)" v-bind:class="{'cur':priceChecked=='all'}" @click="priceChecked='all'">All</a></dd>
+              <dd v-for="(price,index) in priceFilter" >
+                <a href="javascript:void(0)" @click="priceChecked=index" v-bind:class="{'cur':priceChecked==index}">{{price.startPrice}} - {{price.endPrice}}</a>
               </dd>
             </dl>
           </div>
@@ -77,7 +77,9 @@
               endPrice: '2000.00'
           }
         ],
-        priceChecked: 'all'
+        priceChecked: 'all',
+        filterBy:false,
+        overLayFlag:false,     //遮罩
       }
     },
     components:{
@@ -96,6 +98,9 @@
                 var res = result.data;
                 this.goodsList = res.result;
             })
+
+        },
+        showFilterPop(){
 
         }
     }
